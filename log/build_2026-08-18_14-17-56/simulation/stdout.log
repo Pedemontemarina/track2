@@ -1,0 +1,36 @@
+running egg_info
+creating ../../build/simulation/simulation.egg-info
+writing ../../build/simulation/simulation.egg-info/PKG-INFO
+writing dependency_links to ../../build/simulation/simulation.egg-info/dependency_links.txt
+writing requirements to ../../build/simulation/simulation.egg-info/requires.txt
+writing top-level names to ../../build/simulation/simulation.egg-info/top_level.txt
+writing manifest file '../../build/simulation/simulation.egg-info/SOURCES.txt'
+reading manifest file '../../build/simulation/simulation.egg-info/SOURCES.txt'
+writing manifest file '../../build/simulation/simulation.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ubuntu/rt2_second_ex/build/simulation/build
+creating /home/ubuntu/rt2_second_ex/build/simulation/build/lib
+creating /home/ubuntu/rt2_second_ex/build/simulation/build/lib/simulation
+copying simulation/__init__.py -> /home/ubuntu/rt2_second_ex/build/simulation/build/lib/simulation
+copying simulation/PID.py -> /home/ubuntu/rt2_second_ex/build/simulation/build/lib/simulation
+copying simulation/SMC.py -> /home/ubuntu/rt2_second_ex/build/simulation/build/lib/simulation
+running install
+running install_lib
+creating /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation
+copying /home/ubuntu/rt2_second_ex/build/simulation/build/lib/simulation/__init__.py -> /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation
+copying /home/ubuntu/rt2_second_ex/build/simulation/build/lib/simulation/PID.py -> /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation
+copying /home/ubuntu/rt2_second_ex/build/simulation/build/lib/simulation/SMC.py -> /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation
+byte-compiling /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation/__init__.py to __init__.cpython-312.pyc
+byte-compiling /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation/PID.py to PID.cpython-312.pyc
+byte-compiling /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation/SMC.py to SMC.cpython-312.pyc
+running install_data
+creating /home/ubuntu/rt2_second_ex/install/simulation/share/ament_index
+creating /home/ubuntu/rt2_second_ex/install/simulation/share/ament_index/resource_index
+creating /home/ubuntu/rt2_second_ex/install/simulation/share/ament_index/resource_index/packages
+copying resource/simulation -> /home/ubuntu/rt2_second_ex/install/simulation/share/ament_index/resource_index/packages
+copying package.xml -> /home/ubuntu/rt2_second_ex/install/simulation/share/simulation
+running install_egg_info
+Copying ../../build/simulation/simulation.egg-info to /home/ubuntu/rt2_second_ex/install/simulation/lib/python3.12/site-packages/simulation-0.0.0-py3.12.egg-info
+running install_scripts
+writing list of installed files to '/home/ubuntu/rt2_second_ex/build/simulation/install.log'

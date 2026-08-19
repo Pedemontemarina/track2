@@ -1,0 +1,8 @@
+Metadata-Version: 2.1
+Name: simulation
+Version: 0.0.0
+Summary: BlueROV2 dynamics and control simulation
+Maintainer: root
+Maintainer-email: pedemari.rr@gmail.com
+License: TODO: License declaration
+Provides-Extra: test
