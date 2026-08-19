@@ -59,9 +59,9 @@ class BlueROV2DynamicsNode(Node):
         gp = self.get_parameter
 
         m_rb = gp('m_rb').value
-        self.I_u = m_rb + gp('m_a_u').value
-        self.I_v = m_rb + gp('m_a_v').value
-        self.I_z = gp('iz').value + gp('m_a_r').value
+        self.I_u = m_rb - gp('m_a_u').value
+        self.I_v = m_rb - gp('m_a_v').value
+        self.I_z = gp('iz').value - gp('m_a_r').value
 
         self.X_u = gp('x_u').value
         self.Y_v = gp('y_v').value
@@ -137,11 +137,11 @@ class BlueROV2DynamicsNode(Node):
         v_r = v - vc_b
 
         # Equazioni di moto (eq. 11-13): I * nu_dot = tau - drag(nu_r)
-        u_dot = (tau_u - self.X_u * u_r - self.X_uu * abs(u_r) * u_r) / self.I_u
-        v_dot = (tau_v - self.Y_v * v_r - self.Y_vv * abs(v_r) * v_r) / self.I_v
         # Nota: lo yaw non e' influenzato dalla corrente (solo surge/sway,
         # vedi eq. 9 del paper), quindi qui uso r e non una velocita' relativa.
-        r_dot = (tau_r - self.N_r * r - self.N_rr * abs(r) * r) / self.I_z
+        u_dot = (tau_u + self.X_u * u_r + self.X_uu * abs(u_r) * u_r) / self.I_u
+        v_dot = (tau_v + self.Y_v * v_r + self.Y_vv * abs(v_r) * v_r) / self.I_v
+        r_dot = (tau_r + self.N_r * r + self.N_rr * abs(r) * r) / self.I_z
 
         # Cinematica planare: eta_dot = J(psi) * nu
         x_dot = u * cos_p - v * sin_p
