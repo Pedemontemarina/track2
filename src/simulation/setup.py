@@ -25,6 +25,7 @@ setup(
             'dynamics_node = simulation.dynamics_node:main',
             'pid_node = simulation.PID:main',
             'smc_node = simulation.SMC:main',
+            'current_node = simulation.current_node:main',
         ],
     },
 )

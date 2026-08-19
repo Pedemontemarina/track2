@@ -1,0 +1,7 @@
+{
+  "controller": "SMC",
+  "current_amplitude": 0.6,
+  "profile": "step",
+  "duration": 120.0,
+  "t_onset": 10.0
+}

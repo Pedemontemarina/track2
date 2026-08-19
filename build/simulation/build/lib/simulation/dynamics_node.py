@@ -28,6 +28,8 @@ from rclpy.node import Node
 from geometry_msgs.msg import Wrench, Vector3
 from nav_msgs.msg import Odometry
 
+from .core.dynamics import BlueROV2Dynamics
+
 
 class BlueROV2DynamicsNode(Node):
 
@@ -42,7 +44,6 @@ class BlueROV2DynamicsNode(Node):
         self.declare_parameter('m_a_u', -5.50)         # massa aggiunta surge [kg]
         self.declare_parameter('m_a_v', -12.70)        # massa aggiunta sway [kg]
         self.declare_parameter('m_a_r', -0.12)         # massa aggiunta yaw [kg m^2/rad]
-        self.declare_parameter('combine_yaw_inertia', True)
 
         self.declare_parameter('x_u', -4.03)           # damping lineare surge
         self.declare_parameter('y_v', -6.22)           # damping lineare sway
@@ -58,23 +59,17 @@ class BlueROV2DynamicsNode(Node):
 
         gp = self.get_parameter
 
-        m_rb = gp('m_rb').value
-        self.I_u = m_rb - gp('m_a_u').value
-        self.I_v = m_rb - gp('m_a_v').value
-        self.I_z = gp('iz').value - gp('m_a_r').value
-
-        self.X_u = gp('x_u').value
-        self.Y_v = gp('y_v').value
-        self.N_r = gp('n_r').value
-        self.X_uu = gp('x_uu').value
-        self.Y_vv = gp('y_vv').value
-        self.N_rr = gp('n_rr').value
-
+        self.dyn = BlueROV2Dynamics(
+            m_rb=gp('m_rb').value, iz=gp('iz').value,
+            m_a_u=gp('m_a_u').value, m_a_v=gp('m_a_v').value, m_a_r=gp('m_a_r').value,
+            x_u=gp('x_u').value, y_v=gp('y_v').value, n_r=gp('n_r').value,
+            x_uu=gp('x_uu').value, y_vv=gp('y_vv').value, n_rr=gp('n_rr').value,
+        )
         self.dt = gp('dt').value
 
         self.get_logger().info(
-            f'Inerzie effettive -> I_u={self.I_u:.3f}, I_v={self.I_v:.3f}, '
-            f'I_z={self.I_z:.3f} kg (m^2)'
+            f'Inerzie effettive -> I_u={self.dyn.I_u:.3f}, I_v={self.dyn.I_v:.3f}, '
+            f'I_z={self.dyn.I_z:.3f} kg (m^2)'
         )
 
         # ---------------------------------------------------------------
@@ -116,53 +111,11 @@ class BlueROV2DynamicsNode(Node):
         self.current_inertial = np.array([msg.x, msg.y])
 
     # ---------------------------------------------------------------
-    # MODELLO DINAMICO (eq. 8-13 del paper)
+    # PASSO DI SIMULAZIONE
     # ---------------------------------------------------------------
-    def _dynamics(self, state, tau, current_inertial):
-        """Restituisce state_dot = f(state, tau, corrente)."""
-        x, y, psi, u, v, r = state
-        tau_u, tau_v, tau_r = tau
-
-        cos_p, sin_p = np.cos(psi), np.sin(psi)
-
-        # Corrente ruotata dal frame inerziale al frame body (eq. 8-9):
-        # se il ROV e' allineato con la corrente, u_r si riduce alla
-        # differenza scalare; altrimenti la rotazione la scompone
-        # correttamente su surge e sway.
-        uc_n, vc_n = current_inertial
-        uc_b = cos_p * uc_n + sin_p * vc_n
-        vc_b = -sin_p * uc_n + cos_p * vc_n
-
-        u_r = u - uc_b
-        v_r = v - vc_b
-
-        # Equazioni di moto (eq. 11-13): I * nu_dot = tau - drag(nu_r)
-        # Nota: lo yaw non e' influenzato dalla corrente (solo surge/sway,
-        # vedi eq. 9 del paper), quindi qui uso r e non una velocita' relativa.
-        u_dot = (tau_u + self.X_u * u_r + self.X_uu * abs(u_r) * u_r) / self.I_u
-        v_dot = (tau_v + self.Y_v * v_r + self.Y_vv * abs(v_r) * v_r) / self.I_v
-        r_dot = (tau_r + self.N_r * r + self.N_rr * abs(r) * r) / self.I_z
-
-        # Cinematica planare: eta_dot = J(psi) * nu
-        x_dot = u * cos_p - v * sin_p
-        y_dot = u * sin_p + v * cos_p
-        psi_dot = r
-
-        return np.array([x_dot, y_dot, psi_dot, u_dot, v_dot, r_dot])
-
     def _step(self):
-        """Un passo di integrazione RK4 + pubblicazione dello stato."""
-        s = self.state
-        tau = self.tau
-        cur = self.current_inertial
-        dt = self.dt
-
-        k1 = self._dynamics(s, tau, cur)
-        k2 = self._dynamics(s + dt / 2 * k1, tau, cur)
-        k3 = self._dynamics(s + dt / 2 * k2, tau, cur)
-        k4 = self._dynamics(s + dt * k3, tau, cur)
-
-        self.state = s + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+        """Un passo di integrazione RK4 (core.dynamics) + pubblicazione."""
+        self.state = self.dyn.step(self.state, self.tau, self.current_inertial, self.dt)
         self._publish_odom()
 
     def _publish_odom(self):

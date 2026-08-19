@@ -1,0 +1,7 @@
+{
+  "controller": "PID",
+  "current_amplitude": 0.2,
+  "profile": "step",
+  "duration": 120.0,
+  "t_onset": 10.0
+}

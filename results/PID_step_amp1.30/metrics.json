@@ -1,0 +1,11 @@
+{
+  "pct_in_window": 7.692307692307692,
+  "rmse": 8.02521577475361,
+  "min_distance": 0.7780142637215104,
+  "settling_time": NaN,
+  "control_effort": 97768.03394647231,
+  "controller": "PID",
+  "current_amplitude": 1.3,
+  "current_direction": 0.0,
+  "profile": "step"
+}

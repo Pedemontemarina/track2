@@ -1,0 +1,11 @@
+{
+  "pct_in_window": 7.917326443870322,
+  "rmse": 21.06066707241966,
+  "min_distance": 1.1001329748256572,
+  "settling_time": NaN,
+  "control_effort": 45721.64998478978,
+  "controller": "SMC",
+  "current_amplitude": 1.3,
+  "current_direction": 0.0,
+  "profile": "step"
+}
