@@ -1,4 +1,4 @@
 import sys
 if sys.prefix == '/usr':
     sys.real_prefix = sys.prefix
-    sys.prefix = sys.exec_prefix = '/home/paolo/Downloads/track2/install/simulation'
+    sys.prefix = sys.exec_prefix = '/home/ubuntu/track2/install/simulation'

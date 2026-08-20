@@ -20,6 +20,7 @@ simulation/core/currents.py
 simulation/core/dynamics.py
 simulation/core/experiment.py
 simulation/core/metrics.py
+simulation/core/storage.py
 test/test_copyright.py
 test/test_flake8.py
 test/test_pep257.py

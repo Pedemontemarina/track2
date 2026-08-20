@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 Simula la dinamica 3-DOF (surge, sway, yaw) del BlueROV2, secondo il
-modello ridotto di Fossen descritto nel capitolo 2 del paper
-(capitolo2_modellazione.tex), equazioni (11)-(13).
+modello ridotto di Fossen.
 
 STATO SIMULATO
     eta = [x, y, psi]   -> posizione e prua nel frame inerziale (NED, piano)
@@ -15,8 +14,8 @@ COSA FA IL NODO
        sul topic /bluerov2/current_velocity. Di default e' zero (acqua calma).
     3. Ad ogni passo di simulazione (100 Hz):
          - ruota la corrente nel frame body usando l'angolo di imbardata psi
-         - calcola la velocita' relativa nu_r = nu - nu_c (eq. 8-9 del paper)
-         - integra le equazioni di moto (eq. 11-13) con Runge-Kutta 4
+         - calcola la velocita' relativa nu_r = nu - nu_c
+         - integra le equazioni di moto con Runge-Kutta 4
     4. Pubblica lo stato aggiornato come nav_msgs/Odometry sul topic
        /bluerov2/odom (pose = eta, twist = nu), cosi' i nodi di controllo
        possono leggere posizione e velocita' del veicolo.

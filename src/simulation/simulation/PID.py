@@ -2,7 +2,7 @@
 """
 Nodo ROS2 di controllo PID per il task di net-distance-keeping.
 
-Tre loop PID indipendenti (asse disaccoppiato, coerente col capitolo 2):
+Tre loop PID indipendenti :
     surge (x) -> mantiene la distanza dalla rete a d_ref
     sway  (y) -> station-keeping laterale a y_ref (default 0)
     yaw (psi) -> mantiene la prua a psi_ref (default 0, perpendicolare alla rete)
@@ -34,10 +34,10 @@ class PIDControllerNode(Node):
         super().__init__('bluerov2_pid_node')
 
         g = DEFAULT_GAINS['PID']
-        self.declare_parameter('d_ref', 1.10)
-        self.declare_parameter('y_ref', 0.0)
-        self.declare_parameter('psi_ref', 0.0)
-        self.declare_parameter('tau_limit', 30.0)
+        self.declare_parameter('d_ref', 1.10) # distanza dalla rete in metri
+        self.declare_parameter('y_ref', 0.0)  # posizione laterale desiderata in metri (0 = centro canale)
+        self.declare_parameter('psi_ref', 0.0)  # prua desiderata in radianti (0 = perpendicolare alla rete)
+        self.declare_parameter('tau_limit', 30.0)  # limite della forza/torque
         self.declare_parameter('kp_surge', g['surge']['kp'])
         self.declare_parameter('ki_surge', g['surge']['ki'])
         self.declare_parameter('kd_surge', g['surge']['kd'])
@@ -47,6 +47,7 @@ class PIDControllerNode(Node):
         self.declare_parameter('kp_yaw', g['yaw']['kp'])
         self.declare_parameter('ki_yaw', g['yaw']['ki'])
         self.declare_parameter('kd_yaw', g['yaw']['kd'])
+        #parametri configurabili
 
         gp = self.get_parameter
         self.d_ref = gp('d_ref').value
@@ -69,8 +70,10 @@ class PIDControllerNode(Node):
         self.create_subscription(Odometry, '/bluerov2/odom', self._odom_callback, 10)
         self.tau_pub = self.create_publisher(Wrench, '/bluerov2/tau_cmd', 10)
 
+    # ogni volta che arriva un messaggio di odometria, calcola l'errore e la forza/torque da applicare
     def _odom_callback(self, msg: Odometry):
         now = self.get_clock().now()
+        # nel notebook simulo con un dt fisso a 0.01, ma qui calcolo il dt reale tra due callback di odometria
         dt = 0.01 if self.last_t is None else max((now - self.last_t).nanoseconds * 1e-9, 1e-4)
         self.last_t = now
 

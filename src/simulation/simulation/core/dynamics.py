@@ -1,12 +1,22 @@
 """
-Modello 3-DOF (surge, sway, yaw) del BlueROV2, eq. (11)-(13) del paper
-(capitolo2_modellazione / report.tex). Nessuna dipendenza da ROS2: usata sia
-da dynamics_node.py (wrapper rclpy) sia dagli esperimenti headless lanciati
-dal notebook, cosi' la fisica ha un'unica fonte di verita'.
+Modello 3-DOF (surge, sway, yaw) del BlueROV2.
 
 Stato: [x, y, psi, u, v, r]
     x, y, psi -> posizione e prua nel frame inerziale (piano NED)
     u, v, r   -> velocita' surge, sway, yaw nel frame body
+
+Calcolo il nuovo statp usando le equazioni di Fossen per il modello disaccoppiato e
+integro numericamente usando RK4. Il metodo piu semplice sarebbe Eulero che mantiene una 
+pendenza costante in tutto l'intervallo dt ma in questo modo accumulerei un errore. 
+Con RK4 invece calcolo la pendenza in 4 punti diversi e faccio una media pesata, ottenendo 
+un risultato piu' accurato.
+-k1 = pendenza inizio intervallo
+-k2 = pendenza a meta' intervallo usando k1 per stimare lo stato
+-k3 = pendenza a meta' intervallo usando k2 per stimare lo stato
+-k4 = pendenza a fine intervallo usando k3 per stimare lo stato
+
+questo mi permette di usare un intervallo dt piu grande senza perdere precisione,
+e quindi di avere una simulazione piu' veloce.
 """
 
 import numpy as np
@@ -26,8 +36,7 @@ class BlueROV2Dynamics:
         p = {**DEFAULT_PARAMS, **params}
 
         # Inerzia effettiva = massa rigida - massa aggiunta (m_a_* e' negativa
-        # per convenzione di Fossen, quindi questa e' una sottrazione che
-        # aumenta l'inerzia, mai una somma che la farebbe diventare negativa).
+        # per convenzione di Fossen).
         self.I_u = p['m_rb'] - p['m_a_u']
         self.I_v = p['m_rb'] - p['m_a_v']
         self.I_z = p['iz'] - p['m_a_r']
@@ -42,6 +51,7 @@ class BlueROV2Dynamics:
 
         cos_p, sin_p = np.cos(psi), np.sin(psi)
 
+        """corrente nel frame del robot"""
         uc_n, vc_n = current_inertial
         uc_b = cos_p * uc_n + sin_p * vc_n
         vc_b = -sin_p * uc_n + cos_p * vc_n
@@ -53,14 +63,15 @@ class BlueROV2Dynamics:
         v_dot = (tau_v + self.Y_v * v_r + self.Y_vv * abs(v_r) * v_r) / self.I_v
         r_dot = (tau_r + self.N_r * r + self.N_rr * abs(r) * r) / self.I_z
 
+        """riporto nel frame inerziale"""
         x_dot = u * cos_p - v * sin_p
         y_dot = u * sin_p + v * cos_p
         psi_dot = r
 
         return np.array([x_dot, y_dot, psi_dot, u_dot, v_dot, r_dot])
 
+    """integrazione numerica """
     def step(self, state, tau, current_inertial, dt):
-        """Un passo RK4. Ritorna il nuovo stato."""
         k1 = self.derivative(state, tau, current_inertial)
         k2 = self.derivative(state + dt / 2 * k1, tau, current_inertial)
         k3 = self.derivative(state + dt / 2 * k2, tau, current_inertial)
