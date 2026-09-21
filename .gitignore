@@ -1,0 +1,25 @@
+# --- Python -------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+
+# --- Jupyter --------------------------------------------------------------
+.ipynb_checkpoints/
+
+# --- ROS2 build artifacts (se mai generati dentro questa cartella) --------
+build/
+install/
+log/
+
+# --- Bag ROS2 grezzi (binari, spesso enormi: decine/centinaia di MB) ------
+bag_*/
+*.mcap
+*.db3
+
+# --- Log di esperimenti locali ---------------------------------------------
+*_launch.log
+*_record.log
+
+# --- Editor / OS ------------------------------------------------------------
+.vscode/
+.DS_Store
