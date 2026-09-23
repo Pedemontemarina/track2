@@ -51,7 +51,6 @@ def sat(x, limit=1.0):
 
 
 class AxisSMC:
-    """Un loop SMC indipendente per un asse, formula uniforme (vedi docstring)."""
 
     def __init__(self, I, d_lin, d_quad, lam, k_switch, phi, tau_max):
         self.I = I

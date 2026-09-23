@@ -27,7 +27,7 @@ CONVENZIONE DEGLI ERRORI (uniforme sui 3 assi, per evitare bug di segno)
     per evitare il salto di +-pi quando l'angolo attraversa +-180 gradi.
 
     Ogni asse e' un loop PID indipendente (il modello e' disaccoppiato
-    per costruzione, vedi assunzione 3 del paper).
+    per costruzione).
 
 
 INTERFACCIA

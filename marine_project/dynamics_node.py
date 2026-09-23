@@ -3,8 +3,7 @@
 dynamics_node.py
 
 Simula la dinamica 3-DOF (surge, sway, yaw) del BlueROV2, secondo il
-modello ridotto di Fossen descritto nel capitolo 2 del paper
-(capitolo2_modellazione.tex), equazioni (11)-(13).
+modello ridotto di Fossen.
 
 STATO SIMULATO
     eta = [x, y, psi]   -> posizione e prua nel frame inerziale (NED, piano)
@@ -18,7 +17,7 @@ COSA FA IL NODO
     3. Ad ogni passo di simulazione (100 Hz):
          - ruota la corrente nel frame body usando l'angolo di imbardata psi
          - calcola la velocita' relativa nu_r = nu - nu_c (eq. 8-9 del paper)
-         - integra le equazioni di moto (eq. 11-13) con Runge-Kutta 4
+         - integra le equazioni di moto con Runge-Kutta 4
     4. Pubblica lo stato aggiornato come nav_msgs/Odometry sul topic
        /bluerov2/odom (pose = eta, twist = nu), cosi' i nodi di controllo
        possono leggere posizione e velocita' del veicolo.
@@ -122,7 +121,7 @@ class BlueROV2DynamicsNode(Node):
         self.current_inertial = np.array([msg.x, msg.y])
 
     # ---------------------------------------------------------------
-    # MODELLO DINAMICO (eq. 8-13 del paper)
+    # MODELLO DINAMICO 
     # ---------------------------------------------------------------
     def _dynamics(self, state, tau, current_inertial):
         """Restituisce state_dot = f(state, tau, corrente)."""
@@ -131,7 +130,7 @@ class BlueROV2DynamicsNode(Node):
 
         cos_p, sin_p = np.cos(psi), np.sin(psi)
 
-        # Corrente ruotata dal frame inerziale al frame body (eq. 8-9):
+        # Corrente ruotata dal frame inerziale al frame body:
         # se il ROV e' allineato con la corrente, u_r si riduce alla
         # differenza scalare; altrimenti la rotazione la scompone
         # correttamente su surge e sway.
@@ -142,11 +141,10 @@ class BlueROV2DynamicsNode(Node):
         u_r = u - uc_b
         v_r = v - vc_b
 
-        # Equazioni di moto (eq. 11-13): I * nu_dot = tau - drag(nu_r)
+        # Equazioni di moto: I * nu_dot = tau - drag(nu_r)
         u_dot = (tau_u + self.X_u * u_r + self.X_uu * abs(u_r) * u_r) / self.I_u
         v_dot = (tau_v + self.Y_v * v_r + self.Y_vv * abs(v_r) * v_r) / self.I_v
-        # Nota: lo yaw non e' influenzato dalla corrente (solo surge/sway,
-        # vedi eq. 9 del paper), quindi qui uso r e non una velocita' relativa.
+        # Nota: lo yaw non e' influenzato dalla corrente, quindi qui uso r e non una velocita' relativa.
         r_dot = (tau_r + self.N_r * r + self.N_rr * abs(r) * r) / self.I_z
 
         # Cinematica planare: eta_dot = J(psi) * nu
@@ -188,7 +186,7 @@ class BlueROV2DynamicsNode(Node):
         msg.pose.pose.orientation.z = float(np.sin(psi / 2.0))
         msg.pose.pose.orientation.w = float(np.cos(psi / 2.0))
 
-        # Twist espresso in body frame, come da convenzione ROS REP-103
+        # Twist espresso in body frame
         msg.twist.twist.linear.x = float(u)
         msg.twist.twist.linear.y = float(v)
         msg.twist.twist.angular.z = float(r)
